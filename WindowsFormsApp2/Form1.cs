@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -25,6 +25,8 @@ namespace WindowsFormsApp2
 
         Label firstClicked = null;
         Label secondClicked = null;
+        Timer timer1 = new Timer();
+
 
         private void AssignIconsToSquares()
         {
@@ -48,6 +50,8 @@ namespace WindowsFormsApp2
         {
             InitializeComponent();
             AssignIconsToSquares();
+            timer1.Interval = 750;
+            timer1.Tick += timer1_Tick;
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -61,6 +65,16 @@ namespace WindowsFormsApp2
             Label clickedLabel = sender as Label;
 
             if (clickedLabel != null)
+
+                secondClicked = clickedLabel;
+            secondClicked.ForeColor = Color.Black;
+
+            if (firstClicked.Text == secondClicked.Text)
+            {
+                firstClicked = null;
+                secondClicked = null;
+                return;
+            }
             {
                 // If the clicked label is black, the player clicked
                 // an icon that's already been revealed --
@@ -109,5 +123,41 @@ namespace WindowsFormsApp2
             firstClicked = null;
             secondClicked = null;
         }
+
+        private void CheckForWinner()
+        {
+            // Go through all of the labels in the TableLayoutPanel, 
+            // checking each one to see if its icon is matched
+            foreach (Control control in tableLayoutPanel1.Controls)
+            {
+                Label iconLabel = control as Label;
+
+                if (iconLabel != null)
+                {
+                    if (iconLabel.ForeColor == iconLabel.BackColor)
+                        return;
+                }
+            }
+
+            // If the loop didn’t return, it didn't find
+            // any unmatched icons
+            // That means the user won. Show a message and close the form
+            MessageBox.Show("You matched all the icons!", "Congratulations");
+            Close();
+            secondClicked = clickedLabel;
+            secondClicked.ForeColor = Color.Black;
+
+            // Check to see if the player won
+            CheckForWinner();
+
+            // If the player clicked two matching icons, keep them 
+            // black and reset firstClicked and secondClicked 
+            // so the player can click another icon
+            if (firstClicked.Text == secondClicked.Text)
+            {
+                firstClicked = null;
+                secondClicked = null;
+                return;
+            }
+        }
     }
-}
